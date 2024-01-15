@@ -46,16 +46,38 @@ class EventController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Event $event)
     {
-        //
+
+        if (!$event) {
+            return response()->json(['error' => 'Event not found.'], 404);
+        }
+
+        if ($request->user()->id !== $event->user_id) {
+            return response()->json(['error' => 'You can only edit your own events.'], 403);
+        }
+
+
+
+        $data = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'description' => 'nullable|string',
+            'start_time' => 'sometimes|date',
+            'end_time' => 'sometimes|date|after:start_time',
+        ]);
+
+        $event->update($data);
+
+        return response($event, 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Event $event)
     {
-        //
+        $event->delete();
+
+        return response(null, 204);
     }
 }
