@@ -7,6 +7,7 @@ use App\Http\Resources\EventResource;
 use App\Http\Traits\canLoadRelationships;
 use Illuminate\Http\Request;
 use App\Models\Event;
+use Illuminate\Support\Facades\Gate;
 
 class EventController extends Controller
 {
@@ -69,9 +70,10 @@ class EventController extends Controller
             return response()->json(['error' => 'Event not found.'], 404);
         }
 
-        if ($request->user()->id !== $event->user_id) {
-            return response()->json(['error' => 'You can only edit your own events.'], 403);
-        }
+        // if (Gate::denies('update-event', $event)) {
+        //     return response()->json(['error' => 'You can only edit your own events.'], 403);
+        // }
+        $this->authorize('update-event', $event);
 
 
 
