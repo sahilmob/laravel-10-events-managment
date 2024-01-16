@@ -14,6 +14,11 @@ class EventController extends Controller
 
     private array $relations = ['user', 'attendees', 'attendees.user'];
 
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->except(['index', 'show']);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -37,9 +42,8 @@ class EventController extends Controller
             'end_time' => 'required|date|after:start_time',
         ]);
 
-        $event = Event::create([...$data, 'user_id' => 1]);
+        $event = Event::create([...$data, 'user_id' => $request->user()->id]);
 
-        // $event->user()->associate(1);
 
         return new EventResource($this->loadRelationships($event, ['user']));
     }
@@ -86,8 +90,17 @@ class EventController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Event $event)
+    public function destroy(Request $request, Event $event)
     {
+
+        if (!$event) {
+            return response()->json(['error' => 'Event not found.'], 404);
+        }
+
+        if ($request->user()->id !== $event->user_id) {
+            return response()->json(['error' => 'You can only delete your own events.'], 403);
+        }
+
         $event->delete();
 
         return response(null, 204);
