@@ -28,8 +28,8 @@ class SendEventReminders extends Command
         $events = \App\Models\Event::with('attendees.user')->whereBetween('start_time', [now(), now()->addDay()])->get();
         foreach ($events as $event) {
             foreach ($event->attendees as $attendee) {
-                $this->info('' . $attendee->id);
-                // $attendee->user->notify(new \App\Notifications\EventReminder($event));
+                $attendee->user->notify(new \App\Notifications\EventReminderNotification($event));
+
             }
         }
     }
