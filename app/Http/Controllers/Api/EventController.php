@@ -18,6 +18,7 @@ class EventController extends Controller
     public function __construct()
     {
         $this->middleware('auth:sanctum')->except(['index', 'show']);
+        $this->authorizeResource(Event::class, 'event');
     }
 
     /**
@@ -66,6 +67,7 @@ class EventController extends Controller
     public function update(Request $request, Event $event)
     {
 
+        // $this->authorize('update-event', $event);
         if (!$event) {
             return response()->json(['error' => 'Event not found.'], 404);
         }
@@ -73,7 +75,6 @@ class EventController extends Controller
         // if (Gate::denies('update-event', $event)) {
         //     return response()->json(['error' => 'You can only edit your own events.'], 403);
         // }
-        $this->authorize('update-event', $event);
 
 
 
@@ -99,9 +100,6 @@ class EventController extends Controller
             return response()->json(['error' => 'Event not found.'], 404);
         }
 
-        if ($request->user()->id !== $event->user_id) {
-            return response()->json(['error' => 'You can only delete your own events.'], 403);
-        }
 
         $event->delete();
 
