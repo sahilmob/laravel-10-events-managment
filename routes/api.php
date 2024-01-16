@@ -26,6 +26,11 @@ Route::post(
     [ApiAuthController::class, 'login']
 );
 
+Route::middleware('auth:sanctum')->post(
+    '/logout',
+    [ApiAuthController::class, 'logout']
+);
+
 Route::apiResource(
     'events',
     EventController::class
